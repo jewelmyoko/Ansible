@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Installing required packages"
+      - pip install --upgrade pip
+      - pip install ansible
+      - pip install "pywinrm>=0.4.1"
+      - yum install -y unzip || apt-get install -y unzip
+
+  build:
+    commands:
+      - echo "Downloading ansible.zip from S3"
+      - aws s3 cp s3://ydn-test-bucket-01/ansible.zip .
+      - echo "Checking file integrity"
+      - ls -lh ansible.zip
+      - file ansible.zip
+      - echo "Extracting Ansible playbook"
+      - unzip -o ansible.zip || { echo "Unzip failed"; exit 1; }
+      - echo "Running Ansible Playbook on Windows EC2"
+      - ansible-playbook -i inventory.yaml iis_config.yaml

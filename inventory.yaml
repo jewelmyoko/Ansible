@@ -1,0 +1,2 @@
+[windows]
+your-windows-ec2-instance ansible_host=$host ansible_user=Administrator ansible_password=$password ansible_connection=winrm ansible_winrm_transport=basic ansible_port=5985

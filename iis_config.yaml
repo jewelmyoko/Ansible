@@ -1,0 +1,54 @@
+---
+- name: Configure IIS on Windows EC2
+  hosts: windows
+  tasks:
+
+    - name: Ensure IIS is installed
+      win_feature:
+        name: Web-Server
+        state: present
+
+    # - name: Create the physical path for AirportSite
+    #   win_file:
+    #     path: "C:\\inetpub\\airportsite"
+    #     state: directory
+
+    - name: Stop the Airport Site
+      win_iis_website:
+        name: "AirportSite"
+        state: stopped
+
+    - name: Create AirportStaffSite with bindings on ports 80 and 5002
+      win_iis_website:
+        name: "AirportStaffSite"
+        state: started
+        physical_path: "C:\\inetpub\\airportsite\\wwwroot"
+    
+    - name: Add a HTTP binding on port 80
+      win_iis_webbinding:
+        name: "AirportStaffSite"
+        port: 80
+        state: present
+    
+    - name: Add a HTTP binding on port 5002
+      win_iis_webbinding:
+        name: "AirportStaffSite"
+        port: 5002
+        state: present
+    
+    # - name: Configure Directory Browsing in IIS for AirportSite
+    #   win_shell: |
+    #     Import-Module WebAdministration
+    #     Set-WebConfigurationProperty -filter "/system.webServer/directoryBrowse" -name "enabled" -value "true" -PSPath "IIS:\Sites\AirportSite"
+  
+    # - name: Start the airport Site
+    #   win_iis_website:
+    #     name: "AirportStaffSite"
+    #     state: started
+    #     physical_path: "C:\\inetpub\\airportstaffsite"
+
+    - name: Remove AirportSite
+      win_iis_website:
+        name: "AirportSite"
+        state: absent
+      ignore_errors: true
